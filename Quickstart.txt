@@ -27,7 +27,10 @@ Tipps:
 		
 	Main OS wieder in Container: 
 		>> docker attach mycontainername
-		
+
+	Aktuellen Stand eines laufenden Containers zu (neuem/bestehendem) Image committen
+		>> docker commit mycontainername myimagename
+
 	Container schließen:
 		>> exit
 		
