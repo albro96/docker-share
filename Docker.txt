@@ -1,0 +1,155 @@
+## pull https://docs.docker.com/engine/reference/commandline/pull/
+docker pull [OPTIONS] NAME[:TAG|@DIGEST]
+
+	Options:			default		description
+	--all-tags , -a 				# Download all tagged images in the repository
+	--quiet , -q 					# Suppress verbose output
+	
+	Example:
+	docker pull tensorflow/tensorflow:latest-gpu-jupyter
+	
+	docker pull tensorflow/tensorflow:[TAG]
+		Tag:		description
+		latest		The latest release of TensorFlow CPU binary image. Default.
+		nightly		Nightly builds of the TensorFlow image. (Unstable.)
+		version		Specify the version of the TensorFlow binary image, for example: 2.1.0
+		
+		Tag variants:
+		tag-gpu 			The specified tag release with GPU support. 
+		tag-jupyter 		The specified tag release with Jupyter (includes TensorFlow tutorial notebooks)
+		tag-gpu-jupyter		Combined
+		
+
+## build https://docs.docker.com/engine/reference/commandline/build/
+docker build [OPTIONS] PATH | URL | -
+	
+	Options:			default		description
+	--tag , -t 						# Name and optionally a tag in the 'name:tag' format	
+	--rm 				true 		# Remove intermediate containers after a successful build
+	
+	Example:
+	# first: cd to directory with Dockerfile
+	# build image with name mytfimage/tensorflow and tag latest-gpu in the current dir (.)
+	docker build -t mytfimage/tensorflow:latest-gpu .
+	
+	
+	
+	
+## create https://docs.docker.com/engine/reference/commandline/create/
+docker create [OPTIONS] IMAGE [COMMAND] [ARG...]
+	Options:			default		description	
+	--expose 						# Expose a port or a range of ports
+	--publish , -p 					# Publish a container's port(s) (8888) to the host (80) (z.B.  80:8888 == <host>:<container>)
+	--publish-all , -P 				# Publish all exposed ports to random ports
+	--gpus 							# GPU devices to add to the container ('all' to pass all GPUs)
+	--interactive , -i 				# Keep STDIN open even if not attached
+	--ip 							# IPv4 address (e.g., 172.30.100.104)
+	--label , -l 					# Set meta data on a container
+	--mount 						# Attach a filesystem mount to the container
+	--name 							# Assign a name to the container
+	--rm 							# Automatically remove the container when it exits
+	--volume , -v 					# Bind mount a volume
+	--workdir , -w 					# Working directory inside the container	
+
+
+	
+	
+## run https://docs.docker.com/engine/reference/commandline/run/
+docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+	Options:			default		description
+	--interactive , -i 				# Keep STDIN open even if not attached
+	--tty , -t 						# Allocate a pseudo-TTY
+		--> combine with -it (preferred)
+		when in -it mode: ctrl+p + ctrl+q to detach from container without closing it
+		
+	--publish , -p 					# Publish a container's port(s) (8888) to the host (80) (z.B.  80:8888 == <host>:<container>)
+	--name							# Assign a name to the container
+	--pull				missing		# Pull image before running ("always"|"missing"|"never")
+	--rm 							# Automatically remove the container when it exits	
+	--volume , -v 					# Bind mount a volume
+		/home/rrru/Desktop/target:/targetdocker	# bind mounts the /target directory to the /targetdocker dir of the container
+												# get the current working dir with "$(pwd)":/targetdocker for example
+	--workdir , -w 					# Working directory inside the container
+		/targetdocker				# targetdocker is now the working dir
+	-u $(id -u):$(id -g)			# run container as current 
+	
+	--gpus							# GPU devices to add to the container ('all' to pass all GPUs)
+		all							# Takes all gpus
+		'"device=0,1,2"'			# only takes gpus with gpu id: 0 1 2
+	--cpuset-cpus "0,1"				# Use cpu (logical core) 0 and 1 --> 4c/8t processor has 16 "cpus"
+	--memory="100g"					# Use 100GiB of Memory (allow suffix: b,k,m,g)
+	--privileged					# needed for mount / gives access to all gpus
+	--security-opt apparmor:unconfined --cap-add SYS_ADMIN --cap-add DAC_READ_SEARCH	# needed for mount if only subset of gpus is needed
+	
+
+## image https://docs.docker.com/engine/reference/commandline/image/
+docker image COMMAND
+
+	COMMAND:											
+	
+	docker image ls [OPTIONS] [REPOSITORY[:TAG]]	# List images
+		Options:			default		description
+		--all , -a 						# Show all images (default hides intermediate images)
+		--filter , -f 					# Filter output based on conditions provided
+		
+	docker image prune [OPTIONS]	# Remove unused images
+		Options:			default		description
+		--all , -a 						# Remove all unused images, not just dangling ones
+		--filter 						# Provide filter values (e.g. 'until=<timestamp>')
+		--force , -f 					# Do not prompt for confirmation
+		
+	docker image rm [OPTIONS] IMAGE [IMAGE...]	# Remove one or more images
+		Options:			default		description
+		--force , -f 					# Force removal of the image
+		--no-prune 						# Do not delete untagged parents
+	Example:
+	docker rmi $(docker images -f "dangling=true" -q)	
+	
+# container	https://docs.docker.com/engine/reference/commandline/container/
+docker container COMMAND	
+	COMMAND:							
+	
+	docker ps						# List running containers
+	docker container ls [OPTIONS]	# List running containers
+		Options:			default		description
+		--all , -a 						# Show all containers (default shows just running)
+		--filter , -f 					# Filter output based on conditions provided
+		--latest , -l 					# Show the latest created container (includes all states)
+		--size , -s 					# Display total file sizes
+		
+	docker container rm [OPTIONS] CONTAINER [CONTAINER...]	# Remove one or more containers
+		Options:			default		description
+		--force , -f 					# Force the removal of a running container (uses SIGKILL)
+		--link , -l 					# Remove the specified link
+		--volumes , -v 					# Remove anonymous volumes associated with the container
+		
+	docker container kill [OPTIONS] CONTAINER [CONTAINER...]	# Kill one or more running containers
+		Options:			default		description
+		--signal , -s 		KILL 		# Signal to send to the container
+	
+	docker container prune [OPTIONS]	# Remove all stopped containers					
+		Options:			default		description
+		--filter 						# Provide filter values (e.g. 'until=<timestamp>')
+		--force , -f 					# Do not prompt for confirmation
+		
+	docker container rename CONTAINER NEW_NAME	# Rename a container
+
+# rename container
+docker rename old_name new_name	
+
+
+# stats
+docker stats 	
+	--no-stream		# dont stream info
+	-a 				# show resources of stopped containers too
+	
+	
+## Errors:
+
+Err:
+	docker: Error response from daemon: endpoint with name stylegan2-1gpu-0 already exists in network bridge.
+Sol:
+	docker network disconnect -f bridge stylegan2-1gpu-0
+	
+	

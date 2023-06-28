@@ -1,0 +1,42 @@
+Das Dockerfile muss "Dockerfile" heißen.
+
+Image auf Basis des Dockerfiles erstellen (docker build) mit dem Tag (-t) tf-gpu und dem Pfad des Dockerfiles /my/imagename/Dockerfile :
+    >> docker build -t tf-gpu /my/imagename/.
+	
+Interaktiven (-it) Container starten (docker run) mit GPU support (--gpus all) und dem Namen (--name) tf-gpu-con auf Basis des erstellten Images:
+    >> docker run -it --gpus all --name tf-gpu-con tf-gpu
+	
+Tipps:
+	Images auflisten:
+		>> docker image ls
+		
+	Laufende Container auflisten:
+		>> docker container ls
+		
+	Alle Container auflisten:
+		>> docker container ls -a
+		
+	Container löschen:
+		>> docker container rm mycontainername
+		
+	Image löschen: (Achtung: Alle abhängigen Container müssen gelöscht sein -- auch wenn sie gestoppt sind)
+		>> docker image rm myimagename 
+		
+	Um aus einem laufenden Container wieder in dein main OS zu gelangen ohne Container zu schließen: 
+		strg+p strg+q
+		
+	Main OS wieder in Container: 
+		>> docker attach mycontainername
+		
+	Container schließen:
+		>> exit
+		
+	Für prototyping: Container wird nach dem Schließen gelöscht (--rm)
+		>> docker run --rm [...]
+		
+	Speicher vom main OS im Container mounten
+	z.B. Anmeldung als aktueller User mit user ID (id -u) und group ID (id -g):
+	Dockerfile uncomment "add specific user" : damit wird den hier benutzten IDs ein echter Dockerbenutzer zugeordnet
+	Ansonsten gehören alle vom Container erstellten files "root" und nicht dem aktuellen Benutzer
+		>> docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) [...]    # Uebergabe der momentanen IDs an das Dockerfile
+		>> docker run --mount type=bind,source=/my/source,target=/my/dockertarget --user $(id -u):$(id -g) [...]
